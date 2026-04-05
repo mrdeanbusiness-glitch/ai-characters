@@ -1,3 +1,5 @@
+// lib/ai/models.ts
+
 export const DEFAULT_CHAT_MODEL = "moonshotai/kimi-k2-0905";
 
 export const titleModel = {
@@ -84,6 +86,10 @@ export const chatModels: ChatModel[] = [
   },
 ];
 
+// --- Environment variable for API Key ---
+const apiKey = process.env.AI_GATEWAY_API_KEY;
+
+// --- Fetch capabilities for each model ---
 export async function getCapabilities(): Promise<
   Record<string, ModelCapabilities>
 > {
@@ -92,8 +98,14 @@ export async function getCapabilities(): Promise<
       try {
         const res = await fetch(
           `https://ai-gateway.vercel.sh/v1/models/${model.id}/endpoints`,
-          { next: { revalidate: 86_400 } }
+          {
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+            },
+            next: { revalidate: 86_400 },
+          }
         );
+
         if (!res.ok) {
           return [model.id, { tools: false, vision: false, reasoning: false }];
         }
@@ -101,14 +113,9 @@ export async function getCapabilities(): Promise<
         const json = await res.json();
         const endpoints = json.data?.endpoints ?? [];
         const params = new Set(
-          endpoints.flatMap(
-            (e: { supported_parameters?: string[] }) =>
-              e.supported_parameters ?? []
-          )
+          endpoints.flatMap((e: { supported_parameters?: string[] }) => e.supported_parameters ?? [])
         );
-        const inputModalities = new Set(
-          json.data?.architecture?.input_modalities ?? []
-        );
+        const inputModalities = new Set(json.data?.architecture?.input_modalities ?? []);
 
         return [
           model.id,
@@ -127,8 +134,10 @@ export async function getCapabilities(): Promise<
   return Object.fromEntries(results);
 }
 
+// --- Demo flag ---
 export const isDemo = process.env.IS_DEMO === "1";
 
+// --- Gateway model types ---
 type GatewayModel = {
   id: string;
   name: string;
@@ -140,16 +149,15 @@ export type GatewayModelWithCapabilities = ChatModel & {
   capabilities: ModelCapabilities;
 };
 
-export async function getAllGatewayModels(): Promise<
-  GatewayModelWithCapabilities[]
-> {
+// --- Fetch all gateway models ---
+export async function getAllGatewayModels(): Promise<GatewayModelWithCapabilities[]> {
   try {
     const res = await fetch("https://ai-gateway.vercel.sh/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
       next: { revalidate: 86_400 },
     });
-    if (!res.ok) {
-      return [];
-    }
+
+    if (!res.ok) return [];
 
     const json = await res.json();
     return (json.data ?? [])
@@ -170,6 +178,7 @@ export async function getAllGatewayModels(): Promise<
   }
 }
 
+// --- Helpers ---
 export function getActiveModels(): ChatModel[] {
   return chatModels;
 }
@@ -178,9 +187,7 @@ export const allowedModelIds = new Set(chatModels.map((m) => m.id));
 
 export const modelsByProvider = chatModels.reduce(
   (acc, model) => {
-    if (!acc[model.provider]) {
-      acc[model.provider] = [];
-    }
+    if (!acc[model.provider]) acc[model.provider] = [];
     acc[model.provider].push(model);
     return acc;
   },
