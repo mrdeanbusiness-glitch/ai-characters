@@ -14,7 +14,18 @@
   <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
   <a href="#running-locally"><strong>Running locally</strong></a>
 </p>
+
 <br/>
+
+## Preview Deployment
+
+Check out the live preview of the project (updated branch `preview-test`):
+
+[🔗 View Preview on Vercel](https://ai-characters-lwjz1axon-mrdeanbusiness-1967s-projects.vercel.app)
+
+> This link points to the latest deployment from the preview branch. You can use it to test features and review the chatbot before merging to production.
+
+---
 
 ## Features
 
@@ -44,7 +55,7 @@ This template uses the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) t
 
 **For non-Vercel deployments**: You need to provide an AI Gateway API key by setting the `AI_GATEWAY_API_KEY` environment variable in your `.env.local` file.
 
-With the [AI SDK](https://ai-sdk.dev/docs/introduction), you can also switch to direct LLM providers like [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://ai-sdk.dev/providers/ai-sdk-providers) with just a few lines of code.
+With the [AI SDK](https://ai-sdk.dev/docs/introduction), you can also switch to direct LLM providers like [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com), and [many more](https://ai-sdk.dev/providers/ai-sdk-providers) with just a few lines of code.
 
 ## Deploy Your Own
 
@@ -66,6 +77,3 @@ You will need to use the environment variables [defined in `.env.example`](.env.
 pnpm install
 pnpm db:migrate # Setup database or apply latest database changes
 pnpm dev
-```
-
-Your app template should now be running on [localhost:3000] (http://localhost:3000).
